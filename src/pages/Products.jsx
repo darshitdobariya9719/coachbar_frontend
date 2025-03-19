@@ -320,6 +320,7 @@ export default function Products() {
                       )}
                       <TableCell>
                         <IconButton
+                          disabled={user?.role !== "admin"&& product.source === "ADMIN"}
                           color="primary"
                           onClick={() =>
                             navigate(`/products/edit/${product._id}`)
@@ -327,6 +328,7 @@ export default function Products() {
                           <Edit />
                         </IconButton>
                         <IconButton
+                          disabled={user?.role !== "admin"&& product.source === "ADMIN"}
                           color="error"
                           onClick={() => handleDelete(product._id)}>
                           <Delete />
