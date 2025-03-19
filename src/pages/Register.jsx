@@ -52,92 +52,92 @@ export default function Register() {
     }
   };
 
-  return (<>
-    <Button
-      variant="outlined"
-      color="primary"
-      onClick={() => navigate(-1)} // Navigate back
-      startIcon={<ArrowBackIcon />} // Back icon
-      sx={{ ml: 2, mt: 2 }} // Add spacing
-    >
-      Back
-    </Button>
-    <Container maxWidth="sm" sx={{ marginTop: "15vh" }}>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          my: "20px",
-        }}>
-        <Typography variant="h5">Add User</Typography>
-      </Box>
-      <form onSubmit={handleSubmit(onSubmit)}>
+  return (
+    <Box sx={{ mt: 8, minHeight: "90vh" }}>
+      <Button
+        variant="outlined"
+        color="primary"
+        onClick={() => navigate(-1)} // Navigate back
+        startIcon={<ArrowBackIcon />} // Back icon
+        sx={{ ml: 2, mt: 2 }} // Add spacing
+      >
+        Back
+      </Button>
+      <Container maxWidth="sm" sx={{ marginTop: "15vh" }}>
         <Box
           sx={{
             display: "flex",
-            flexDirection: "column",
-            gap: "10px",
-            alignItems: "end",
+            justifyContent: "space-between",
+            alignItems: "center",
+            my: "20px",
           }}>
-          <TextField
-            fullWidth
-            label="Name"
-            {...register("name")}
-            error={!!errors.name}
-            helperText={errors.name?.message}
-          />
-          <TextField
-            fullWidth
-            label="Email"
-            {...register("email")}
-            error={!!errors.email}
-            helperText={errors.email?.message}
-          />
-          <TextField
-            fullWidth
-            label="Password"
-            type={showPassword ? "text" : "password"}
-            {...register("password")}
-            error={!!errors.password}
-            helperText={errors.password?.message}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton onClick={togglePasswordVisibility} edge="end">
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
-          <FormControl fullWidth error={!!errors.role}>
-            <InputLabel id="role-label">Role</InputLabel>
-            <Select
-              labelId="role-label"
-              id="role"
-              {...register("role", { required: "Role is required" })}
-              defaultValue="" // Ensures default value is set
-            >
-              <MenuItem value="">Select Role</MenuItem>
-              <MenuItem value="admin">Admin</MenuItem>
-              <MenuItem value="user">User</MenuItem>
-            </Select>
-            {errors.role && (
-              <FormHelperText>{errors.role.message}</FormHelperText>
-            )}
-          </FormControl>
-
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            sx={{ width: "100px" }}>
-            Register
-          </Button>
+          <Typography variant="h5">Add User</Typography>
         </Box>
-      </form>
-    </Container>
-  </>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "10px",
+            }}>
+            <TextField
+              fullWidth
+              label="Name"
+              {...register("name")}
+              error={!!errors.name}
+              helperText={errors.name?.message}
+            />
+            <TextField
+              fullWidth
+              label="Email"
+              {...register("email")}
+              error={!!errors.email}
+              helperText={errors.email?.message}
+            />
+            <TextField
+              fullWidth
+              label="Password"
+              type={showPassword ? "text" : "password"}
+              {...register("password")}
+              error={!!errors.password}
+              helperText={errors.password?.message}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={togglePasswordVisibility} edge="end">
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <FormControl fullWidth error={!!errors.role}>
+              <InputLabel id="role-label">Role</InputLabel>
+              <Select
+                labelId="role-label"
+                id="role"
+                {...register("role", { required: "Role is required" })}
+                defaultValue="" // Ensures default value is set
+              >
+                <MenuItem value="">Select Role</MenuItem>
+                <MenuItem value="admin">Admin</MenuItem>
+                <MenuItem value="user">User</MenuItem>
+              </Select>
+              {errors.role && (
+                <FormHelperText>{errors.role.message}</FormHelperText>
+              )}
+            </FormControl>
+
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              sx={{ width: "100px" }}>
+              Register
+            </Button>
+          </Box>
+        </form>
+      </Container>
+    </Box>
   );
 }

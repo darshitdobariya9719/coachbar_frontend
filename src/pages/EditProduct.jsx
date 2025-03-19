@@ -13,6 +13,7 @@ import {
   Select,
   MenuItem,
   Autocomplete,
+  CircularProgress,
 } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../utils/api";
@@ -30,7 +31,13 @@ const schema = yup.object({
 });
 
 export default function EditProduct() {
-  const { register, handleSubmit, setValue, formState: { errors }, watch } = useForm({
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+    watch,
+  } = useForm({
     resolver: yupResolver(schema),
   });
   const navigate = useNavigate();
@@ -45,10 +52,13 @@ export default function EditProduct() {
 
   useEffect(() => {
     // Fetch categories
-    api.get("/products/categories").then((res) => setCategories(res.data.categories));
+    api
+      .get("/products/categories")
+      .then((res) => setCategories(res.data.categories));
 
     // Fetch product details
-    api.get(`/products/${id}`)
+    api
+      .get(`/products/${id}`)
       .then((res) => {
         const product = res.data;
         setValue("name", product.name);
@@ -80,7 +90,12 @@ export default function EditProduct() {
       formData.append("sku", data.sku);
       formData.append("category", data.category);
       formData.append("source", user.role === "admin" ? "ADMIN" : "USER");
-      formData.append("assignedTo", user.role === "admin" ? JSON.stringify(data.assignedTo) : JSON.stringify([user._id]));
+      formData.append(
+        "assignedTo",
+        user.role === "admin"
+          ? JSON.stringify(data.assignedTo)
+          : JSON.stringify([user._id])
+      );
 
       if (selectedFile) {
         formData.append("logo", selectedFile); // Attach new file if updated
@@ -97,10 +112,22 @@ export default function EditProduct() {
     }
   };
 
-  if (loading) return <Typography>Loading...</Typography>;
+  if (loading)
+    return (
+      <Box
+        sx={{
+          mt: 8,
+          minHeight: "90vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}>
+        <CircularProgress />
+      </Box>
+    );
 
   return (
-    <>
+    <Box sx={{ mt: 8, minHeight: "90vh" }}>
       <Button
         variant="outlined"
         color="primary"
@@ -110,15 +137,91 @@ export default function EditProduct() {
       >
         Back
       </Button>
-      <Container maxWidth="sm" sx={{ marginTop: "10vh" }}>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", my: "20px" }}>
+      <Container maxWidth="sm" sx={{ mt: 4, mb: 4 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            my: "20px",
+          }}>
           <Typography variant="h5">Edit Product</Typography>
         </Box>
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <Box sx={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            <TextField label="Product Name" fullWidth {...register("name")} error={!!errors.name} helperText={errors.name?.message} />
-            <TextField label="SKU" fullWidth {...register("sku")} error={!!errors.sku} helperText={errors.sku?.message} />
+            <Box
+              display="flex"
+              flexDirection="column"
+              alignItems="center"
+              gap={2}
+              mt={2}>
+              {/* Image Preview */}
+              {preview && (
+                <Box
+                  mt={2}
+                  display="flex"
+                  justifyContent="center"
+                  alignItems="center"
+                  border="1px solid #ccc"
+                  borderRadius="8px"
+                  padding="10px"
+                  width="100%"
+                  maxWidth="300px">
+                  <img
+                    src={preview}
+                    alt="Preview"
+                    style={{
+                      width: "100%",
+                      maxHeight: "200px",
+                      objectFit: "contain",
+                      borderRadius: "6px",
+                    }}
+                  />
+                </Box>
+              )}
+              {/* Upload Image */}
+              <input
+                type="file"
+                accept="image/*"
+                {...register("logo")}
+                onChange={handleFileChange}
+                style={{ display: "none" }}
+                id="logo-upload"
+              />
+              <label htmlFor="logo-upload">
+                <Button
+                  variant="contained"
+                  component="span"
+                  color="primary"
+                  sx={{
+                    textTransform: "none",
+                    fontSize: "16px",
+                    padding: "8px 20px",
+                  }}>
+                  Upload Image
+                </Button>
+              </label>
+
+              {/* Error Message */}
+              {errors.logo && (
+                <Typography color="error">{errors.logo.message}</Typography>
+              )}
+            </Box>
+            <TextField
+              label="Product Name"
+              fullWidth
+              {...register("name")}
+              error={!!errors.name}
+              helperText={errors.name?.message}
+            />
+            <TextField
+              label="SKU"
+              fullWidth
+              {...register("sku")}
+              error={!!errors.sku}
+              helperText={errors.sku?.message}
+            />
 
             {/* Category Selection */}
             <Autocomplete
@@ -141,42 +244,28 @@ export default function EditProduct() {
             {user.role === "admin" && (
               <FormControl fullWidth>
                 <InputLabel>Assign To</InputLabel>
-                <Select {...register("assignedTo")} multiple defaultValue={watch("assignedTo")}>
+                <Select
+                  {...register("assignedTo")}
+                  multiple
+                  defaultValue={watch("assignedTo")}>
                   {users.map((u) => (
-                    <MenuItem key={u._id} value={u._id}>{u.name}</MenuItem>
+                    <MenuItem key={u._id} value={u._id}>
+                      {u.name}
+                    </MenuItem>
                   ))}
                 </Select>
               </FormControl>
             )}
-
-            {/* Upload Image */}
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              style={{ display: "none" }}
-              id="logo-upload"
-            />
-            <label htmlFor="logo-upload">
-              <Button variant="contained" component="span">
-                Upload New Image
-              </Button>
-            </label>
-            {errors.logo && <Typography color="error">{errors.logo.message}</Typography>}
-
-            {/* Image Preview */}
-            {preview && (
-              <Box mt={2}>
-                <img src={preview} alt="Preview" style={{ width: "100%", maxHeight: "200px", objectFit: "contain" }} />
-              </Box>
-            )}
-
-            <Button type="submit" variant="contained" color="primary" sx={{ width: "100px" }}>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              sx={{ width: "100px" }}>
               Update
             </Button>
           </Box>
         </form>
       </Container>
-    </>
+    </Box>
   );
 }

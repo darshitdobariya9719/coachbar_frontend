@@ -74,11 +74,11 @@ export default function EditProfile() {
   };
 
   useEffect(() => {
-    fetchCurrentUser()
+    fetchCurrentUser();
   }, []);
 
   return (
-    <>
+    <Box sx={{ mt: 8, minHeight: "90vh" }}>
       <Button
         variant="outlined"
         color="primary"
@@ -98,7 +98,10 @@ export default function EditProfile() {
             mb: 10,
           }}>
           <Typography variant="h5">Edit Profile</Typography>
-          <Avatar src={`${api.defaults.baseURL}/images/${profilePic}`} sx={{ width: 100, height: 100 }} />
+          <Avatar
+            src={`${api.defaults.baseURL}/images/${profilePic}`}
+            sx={{ width: 100, height: 100 }}
+          />
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             <input
               type="file"
@@ -112,8 +115,7 @@ export default function EditProfile() {
                 variant="contained"
                 component="span"
                 startIcon={<CloudUploadIcon />}
-                color="primary"
-              >
+                color="primary">
                 Upload Image
               </Button>
             </label>
@@ -144,6 +146,6 @@ export default function EditProfile() {
           </Box>
         </form>
       </Container>
-    </>
+    </Box>
   );
 }

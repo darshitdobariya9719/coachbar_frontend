@@ -1,5 +1,17 @@
 import React, { useState } from "react";
-import { AppBar, Toolbar, Typography, Button, IconButton, Drawer, List, ListItem, ListItemText, MenuItem, Menu } from "@mui/material";
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Button,
+  IconButton,
+  Drawer,
+  List,
+  ListItem,
+  ListItemText,
+  MenuItem,
+  Menu,
+} from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useSelector, useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
@@ -36,10 +48,15 @@ const Navbar = () => {
 
   return (
     <>
-      <AppBar position="static">
+      <AppBar position="fixed" top="0">
         <Toolbar>
           {isMobile && (
-            <IconButton edge="start" color="inherit" aria-label="menu" onClick={toggleDrawer} sx={{ display: { xs: "block", sm: "none" } }}>
+            <IconButton
+              edge="start"
+              color="inherit"
+              aria-label="menu"
+              onClick={toggleDrawer}
+              sx={{ display: { xs: "block", sm: "none" } }}>
               <MenuIcon />
             </IconButton>
           )}
@@ -50,8 +67,16 @@ const Navbar = () => {
           {/* Desktop Navigation */}
           {!isMobile && (
             <div style={{ display: "flex", gap: "15px" }}>
-              {user && user?.role === "admin" && <Button color="inherit" component={Link} to="/users">Users</Button>}
-              {user && <Button color="inherit" component={Link} to="/products">Products</Button>}
+              {user && user?.role === "admin" && (
+                <Button color="inherit" component={Link} to="/users">
+                  Users
+                </Button>
+              )}
+              {user && (
+                <Button color="inherit" component={Link} to="/products">
+                  Products
+                </Button>
+              )}
               {user && (
                 <div>
                   <IconButton
@@ -60,31 +85,47 @@ const Navbar = () => {
                     aria-controls="menu-appbar"
                     aria-haspopup="true"
                     onClick={handleMenu}
-                    color="inherit"
-                  >
+                    color="inherit">
                     <AccountCircle />
                   </IconButton>
                   <Menu
                     id="menu-appbar"
                     anchorEl={anchorEl}
                     anchorOrigin={{
-                      vertical: 'top',
-                      horizontal: 'right',
+                      vertical: "top",
+                      horizontal: "right",
                     }}
                     keepMounted
                     transformOrigin={{
-                      vertical: 'top',
-                      horizontal: 'right',
+                      vertical: "top",
+                      horizontal: "right",
                     }}
                     open={Boolean(anchorEl)}
-                    onClose={handleClose}
-                  >
-                    <MenuItem to="/profile" component={Link} onClick={handleClose}>Profile</MenuItem>
-                    <MenuItem onClick={() => { handleLogout(); handleClose() }}>Logout</MenuItem>
+                    onClose={handleClose}>
+                    <MenuItem
+                      to="/profile"
+                      component={Link}
+                      onClick={handleClose}>
+                      Profile
+                    </MenuItem>
+                    <MenuItem
+                      to="/password"
+                      component={Link}
+                      onClick={handleClose}>
+                      Update Password
+                    </MenuItem>
+                    <MenuItem
+                      onClick={() => {
+                        handleLogout();
+                        handleClose();
+                      }}>
+                      Logout
+                    </MenuItem>
                   </Menu>
                 </div>
               )}
-            </div>)}
+            </div>
+          )}
         </Toolbar>
       </AppBar>
 
@@ -93,21 +134,46 @@ const Navbar = () => {
         <List>
           {user && (
             <>
-              {user?.role === "admin" && <ListItem button component={Link} to="/users" onClick={toggleDrawer}>
-                <ListItemText primary="Users" />
-              </ListItem>}
-              <ListItem button component={Link} to="/products" onClick={toggleDrawer}>
+              {user?.role === "admin" && (
+                <ListItem
+                  button
+                  component={Link}
+                  to="/users"
+                  onClick={toggleDrawer}>
+                  <ListItemText primary="Users" />
+                </ListItem>
+              )}
+              <ListItem
+                button
+                component={Link}
+                to="/products"
+                onClick={toggleDrawer}>
                 <ListItemText primary="Products" />
               </ListItem>
             </>
           )}
           {user && (
             <>
-              <ListItem button component={Link} to="/login" onClick={handleLogout}>
-                <ListItemText primary="Logout" />
-              </ListItem>
-              <ListItem button component={Link} to="/profile" onClick={toggleDrawer}>
+              <ListItem
+                button
+                component={Link}
+                to="/profile"
+                onClick={toggleDrawer}>
                 <ListItemText primary="Profile" />
+              </ListItem>
+              <ListItem
+                button
+                component={Link}
+                to="/password"
+                onClick={toggleDrawer}>
+                <ListItemText primary="Update Password" />
+              </ListItem>
+              <ListItem
+                button
+                component={Link}
+                to="/login"
+                onClick={handleLogout}>
+                <ListItemText primary="Logout" />
               </ListItem>
             </>
           )}

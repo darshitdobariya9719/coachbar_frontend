@@ -30,7 +30,12 @@ const schema = yup.object({
 });
 
 export default function AddProduct() {
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm({
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm({
     resolver: yupResolver(schema),
   });
   const navigate = useNavigate();
@@ -51,16 +56,19 @@ export default function AddProduct() {
   };
 
   const onSubmit = async (data) => {
-    console.log('selectedFile: ', selectedFile);
     try {
       const formData = new FormData();
       formData.append("name", data.name);
       formData.append("sku", data.sku);
       formData.append("category", data.category);
       formData.append("source", user.role === "admin" ? "ADMIN" : "USER");
-      formData.append("assignedTo", user.role === "admin" ? JSON.stringify(data.assignedTo) : JSON.stringify([user._id]));
+      formData.append(
+        "assignedTo",
+        user.role === "admin"
+          ? JSON.stringify(data.assignedTo)
+          : JSON.stringify([user._id])
+      );
       formData.append("logo", selectedFile); // Attach file
-
 
       await api.post("/products", formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -74,11 +82,13 @@ export default function AddProduct() {
   };
 
   useEffect(() => {
-    api.get("/products/categories").then((res) => setCategories(res.data.categories));
+    api
+      .get("/products/categories")
+      .then((res) => setCategories(res.data.categories));
   }, []);
 
   return (
-    <>
+    <Box sx={{ mt: 8, minHeight: "100vh" }}>
       <Button
         variant="outlined"
         color="primary"
@@ -88,15 +98,91 @@ export default function AddProduct() {
       >
         Back
       </Button>
-      <Container maxWidth="sm" sx={{ marginTop: "10vh" }}>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", my: "20px" }}>
+      <Container maxWidth="sm" sx={{ mt: 4, mb: 4 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            my: "20px",
+          }}>
           <Typography variant="h5">Add Product</Typography>
         </Box>
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <Box sx={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            <TextField label="Product Name" fullWidth {...register("name")} error={!!errors.name} helperText={errors.name?.message} />
-            <TextField label="SKU" fullWidth {...register("sku")} error={!!errors.sku} helperText={errors.sku?.message} />
+            <Box
+              display="flex"
+              flexDirection="column"
+              alignItems="center"
+              gap={2}
+              mt={2}>
+              {/* Image Preview */}
+              {preview && (
+                <Box
+                  mt={2}
+                  display="flex"
+                  justifyContent="center"
+                  alignItems="center"
+                  border="1px solid #ccc"
+                  borderRadius="8px"
+                  padding="10px"
+                  width="100%"
+                  maxWidth="300px">
+                  <img
+                    src={preview}
+                    alt="Preview"
+                    style={{
+                      width: "100%",
+                      maxHeight: "200px",
+                      objectFit: "contain",
+                      borderRadius: "6px",
+                    }}
+                  />
+                </Box>
+              )}
+              {/* Upload Image */}
+              <input
+                type="file"
+                accept="image/*"
+                {...register("logo")}
+                onChange={handleFileChange}
+                style={{ display: "none" }}
+                id="logo-upload"
+              />
+              <label htmlFor="logo-upload">
+                <Button
+                  variant="contained"
+                  component="span"
+                  color="primary"
+                  sx={{
+                    textTransform: "none",
+                    fontSize: "16px",
+                    padding: "8px 20px",
+                  }}>
+                  Upload Image
+                </Button>
+              </label>
+
+              {/* Error Message */}
+              {errors.logo && (
+                <Typography color="error">{errors.logo.message}</Typography>
+              )}
+            </Box>
+            <TextField
+              label="Product Name"
+              fullWidth
+              {...register("name")}
+              error={!!errors.name}
+              helperText={errors.name?.message}
+            />
+            <TextField
+              label="SKU"
+              fullWidth
+              {...register("sku")}
+              error={!!errors.sku}
+              helperText={errors.sku?.message}
+            />
 
             {/* Category with Suggestions */}
             <Autocomplete
@@ -122,42 +208,24 @@ export default function AddProduct() {
                 <InputLabel>Assign To</InputLabel>
                 <Select {...register("assignedTo")} multiple defaultValue={[]}>
                   {users.map((u) => (
-                    <MenuItem key={u._id} value={u._id}>{u.name}</MenuItem>
+                    <MenuItem key={u._id} value={u._id}>
+                      {u.name}
+                    </MenuItem>
                   ))}
                 </Select>
               </FormControl>
             )}
 
-            {/* Upload Image */}
-            <input
-              type="file"
-              accept="image/*"
-              {...register("logo")}
-              onChange={handleFileChange}
-              style={{ display: "none" }}
-              id="logo-upload"
-            />
-            <label htmlFor="logo-upload">
-              <Button variant="contained" component="span">
-                Upload Image
-              </Button>
-            </label>
-            {errors.logo && <Typography color="error">{errors.logo.message}</Typography>}
-
-            {/* Image Preview */}
-            {preview && (
-              <Box mt={2}>
-                <img src={preview} alt="Preview" style={{ width: "100%", maxHeight: "200px", objectFit: "contain" }} />
-              </Box>
-            )}
-
-            <Button type="submit" variant="contained" color="primary" sx={{ width: "100px" }}>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              sx={{ width: "100px" }}>
               Add
             </Button>
           </Box>
         </form>
       </Container>
-    </>
+    </Box>
   );
 }
-

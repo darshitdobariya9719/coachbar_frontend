@@ -9,6 +9,7 @@ import Users from "./pages/Users";
 import AddProducts from "./pages/AddProducts";
 import EditProduct from "./pages/EditProduct";
 import EditProfile from "./pages/EditProfile";
+import UpdatePassword from "./pages/UpdatePassword";
 
 function App() {
   const { user } = useSelector((state) => state.auth);
@@ -17,7 +18,6 @@ function App() {
     <>
       {user && <Navbar />}
       <Routes>
-
         {/* Default Route - Redirect Based on Authentication */}
         <Route
           path="/"
@@ -27,14 +27,16 @@ function App() {
         />
 
         {/* Public Routes */}
-        <Route
-          path="/login"
-          element={user ? <Navigate to="/" /> : <Login />}
-        />
+        <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
 
         <Route
           path="/users/new"
           element={user ? <Register /> : <Navigate to="/login" />}
+        />
+
+        <Route
+          path="/password"
+          element={user ? <UpdatePassword /> : <Navigate to="/login" />}
         />
 
         <Route
