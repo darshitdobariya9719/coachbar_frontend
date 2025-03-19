@@ -4,17 +4,32 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useDispatch } from "react-redux";
 import { setUser } from "../redux/authSlice";
-import { Box, TextField, Button, Container, Typography, InputAdornment, IconButton } from "@mui/material";
+import {
+  Box,
+  TextField,
+  Button,
+  Container,
+  Typography,
+  InputAdornment,
+  IconButton,
+} from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import api from "../utils/api";
 
 const schema = yup.object({
   email: yup.string().email().required(),
-  password: yup.string().required("Password is required").min(6, "Password must be at least 6 characters"),
+  password: yup
+    .string()
+    .required("Password is required")
+    .min(6, "Password must be at least 6 characters"),
 });
 
 export default function Login() {
-  const { register, handleSubmit, formState: { errors } } = useForm({ resolver: yupResolver(schema) });
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({ resolver: yupResolver(schema) });
   const dispatch = useDispatch();
   const [showPassword, setShowPassword] = useState(false);
 
@@ -34,12 +49,24 @@ export default function Login() {
   };
 
   return (
-    <Container maxWidth="sm" sx={{ marginTop: "30vh" }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', my: '20px' }}>
+    <Container maxWidth="sm" sx={{ mt: -20 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          my: "20px",
+        }}>
         <Typography variant="h5">Login</Typography>
       </Box>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: "10px", alignItems: "end" }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "10px",
+            alignItems: "end",
+          }}>
           {/* Email Field */}
           <TextField
             fullWidth
@@ -69,7 +96,11 @@ export default function Login() {
           />
 
           {/* Submit Button */}
-          <Button type="submit" variant="contained" color="primary" sx={{ width: "100px" }}>
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            sx={{ width: "100px" }}>
             Login
           </Button>
         </Box>
