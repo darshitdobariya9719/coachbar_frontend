@@ -104,27 +104,28 @@ export default function EditProduct() {
       await api.put(`/products/${id}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-
+      setLoading(false);
       alert("Product updated successfully!");
       navigate("/products");
     } catch (error) {
+      setLoading(false);
       alert(error.response?.data?.message || "Failed to update product");
     }
   };
 
-  if (loading)
-    return (
-      <Box
-        sx={{
-          mt: 8,
-          minHeight: "90vh",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}>
-        <CircularProgress />
-      </Box>
-    );
+  // if (loading)
+  //   return (
+  //     <Box
+  //       sx={{
+  //         mt: 8,
+  //         minHeight: "90vh",
+  //         display: "flex",
+  //         justifyContent: "center",
+  //         alignItems: "center",
+  //       }}>
+  //       <CircularProgress />
+  //     </Box>
+  //   );
 
   return (
     <Box sx={{ mt: 8, minHeight: "90vh" }}>
@@ -147,8 +148,28 @@ export default function EditProduct() {
           }}>
           <Typography variant="h5">Edit Product</Typography>
         </Box>
-
-        <form onSubmit={handleSubmit(onSubmit)}>
+        {loading && (
+          <Box
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: "rgba(255, 255, 255, 0.7)", // Semi-transparent background
+              zIndex: 10,
+            }}>
+            <CircularProgress />
+          </Box>
+        )}
+        <form
+          onSubmit={handleSubmit((data) => {
+            setLoading(true);
+            onSubmit(data);
+          })}>
           <Box sx={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             <Box
               display="flex"
@@ -212,6 +233,7 @@ export default function EditProduct() {
               label="Product Name"
               fullWidth
               {...register("name")}
+              value={watch("name") || ""}
               error={!!errors.name}
               helperText={errors.name?.message}
             />
@@ -219,6 +241,7 @@ export default function EditProduct() {
               label="SKU"
               fullWidth
               {...register("sku")}
+              value={watch("sku") || ""}
               error={!!errors.sku}
               helperText={errors.sku?.message}
             />
@@ -247,7 +270,8 @@ export default function EditProduct() {
                 <Select
                   {...register("assignedTo")}
                   multiple
-                  defaultValue={watch("assignedTo")}>
+                  value={watch("assignedTo") || []}
+                  defaultValue={watch("assignedTo") || []}>
                   {users.map((u) => (
                     <MenuItem key={u._id} value={u._id}>
                       {u.name}

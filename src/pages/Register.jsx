@@ -14,6 +14,7 @@ import {
   FormHelperText,
   InputAdornment,
   IconButton,
+  CircularProgress,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useState } from "react";
@@ -37,7 +38,7 @@ export default function Register() {
   const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
-
+  const [loading, setLoading] = useState(false);
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
   };
@@ -46,8 +47,10 @@ export default function Register() {
     try {
       await api.post("/users/register", data);
       alert("User registration successful!");
+      setLoading(false);
       window.location.href = "/users";
     } catch (error) {
+      setLoading(false);
       alert(error.response?.data?.message || "Registration failed");
     }
   };
@@ -73,7 +76,28 @@ export default function Register() {
           }}>
           <Typography variant="h5">Add User</Typography>
         </Box>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        {loading && (
+          <Box
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: "rgba(255, 255, 255, 0.7)", // Semi-transparent background
+              zIndex: 10,
+            }}>
+            <CircularProgress />
+          </Box>
+        )}
+        <form
+          onSubmit={handleSubmit((data) => {
+            setLoading(true);
+            onSubmit(data);
+          })}>
           <Box
             sx={{
               display: "flex",

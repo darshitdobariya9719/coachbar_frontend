@@ -12,6 +12,7 @@ import {
   Typography,
   InputAdornment,
   IconButton,
+  CircularProgress,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import api from "../utils/api";
@@ -32,6 +33,7 @@ export default function Login() {
   } = useForm({ resolver: yupResolver(schema) });
   const dispatch = useDispatch();
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
@@ -41,9 +43,11 @@ export default function Login() {
     try {
       const res = await api.post("/users/login", data);
       dispatch(setUser(res.data));
+      setLoading(false);
       // window.location.href = "/dashboard";
     } catch (err) {
       console.error(err);
+      setLoading(false);
       alert(err.response?.data?.message || "Login failed");
     }
   };
@@ -59,7 +63,28 @@ export default function Login() {
         }}>
         <Typography variant="h5">Login</Typography>
       </Box>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      {loading && (
+        <Box
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(255, 255, 255, 0.7)", // Semi-transparent background
+            zIndex: 10,
+          }}>
+          <CircularProgress />
+        </Box>
+      )}
+      <form
+        onSubmit={handleSubmit((data) => {
+          setLoading(true);
+          onSubmit(data);
+        })}>
         <Box
           sx={{
             display: "flex",

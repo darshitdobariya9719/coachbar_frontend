@@ -13,6 +13,7 @@ import {
   Select,
   MenuItem,
   Autocomplete,
+  CircularProgress,
 } from "@mui/material";
 import api from "../utils/api";
 import { useSelector } from "react-redux";
@@ -45,7 +46,7 @@ export default function AddProduct() {
   const [categoryInput, setCategoryInput] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [preview, setPreview] = useState("");
-
+  const [loading, setLoading] = useState(false);
   // Handle file selection and preview
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -73,10 +74,11 @@ export default function AddProduct() {
       await api.post("/products", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-
+      setLoading(false);
       alert("Product added successfully!");
       window.location.href = "/products";
     } catch (error) {
+      setLoading(false);
       alert(error.response?.data?.message || "Failed to add product");
     }
   };
@@ -109,7 +111,28 @@ export default function AddProduct() {
           <Typography variant="h5">Add Product</Typography>
         </Box>
 
-        <form onSubmit={handleSubmit(onSubmit)}>
+        {loading && (
+          <Box
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: "rgba(255, 255, 255, 0.7)", // Semi-transparent background
+              zIndex: 10,
+            }}>
+            <CircularProgress />
+          </Box>
+        )}
+        <form
+          onSubmit={handleSubmit((data) => {
+            setLoading(true);
+            onSubmit(data);
+          })}>
           <Box sx={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             <Box
               display="flex"

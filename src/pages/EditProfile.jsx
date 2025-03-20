@@ -8,6 +8,7 @@ import {
   Typography,
   Box,
   Avatar,
+  CircularProgress,
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import api from "../utils/api";
@@ -32,12 +33,15 @@ export default function EditProfile() {
   const navigate = useNavigate();
 
   const [profilePic, setProfilePic] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const onSubmit = async (data) => {
     try {
       await api.put("/users/update", data);
+      setLoading(false);
       alert("Profile updated successfully!");
     } catch (error) {
+      setLoading(false);
       alert(error.response?.data?.message || "Update failed");
     }
   };
@@ -121,7 +125,28 @@ export default function EditProfile() {
             </label>
           </div>
         </Box>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        {loading && (
+          <Box
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: "rgba(255, 255, 255, 0.7)", // Semi-transparent background
+              zIndex: 10,
+            }}>
+            <CircularProgress />
+          </Box>
+        )}
+        <form
+          onSubmit={handleSubmit((data) => {
+            setLoading(true);
+            onSubmit(data);
+          })}>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <TextField
               fullWidth

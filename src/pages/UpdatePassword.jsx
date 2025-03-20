@@ -10,6 +10,7 @@ import {
   Box,
   IconButton,
   InputAdornment,
+  CircularProgress,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
@@ -41,6 +42,7 @@ export default function UpdatePassword() {
     new: false,
     confirm: false,
   });
+  const [loading, setLoading] = useState(false);
 
   const togglePasswordVisibility = (field) => {
     setShowPassword((prev) => ({ ...prev, [field]: !prev[field] }));
@@ -52,9 +54,11 @@ export default function UpdatePassword() {
         oldPassword: data.oldPassword,
         newPassword: data.newPassword,
       });
+      setLoading(false);
       alert("Password updated successfully!");
       navigate("/profile");
     } catch (error) {
+      setLoading(false);
       alert(error.response?.data?.message || "Failed to update password");
     }
   };
@@ -73,7 +77,28 @@ export default function UpdatePassword() {
         <Box sx={{ textAlign: "center", mb: 4 }}>
           <Typography variant="h5">Update Password</Typography>
         </Box>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        {loading && (
+          <Box
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: "rgba(255, 255, 255, 0.7)", // Semi-transparent background
+              zIndex: 10,
+            }}>
+            <CircularProgress />
+          </Box>
+        )}
+        <form
+          onSubmit={handleSubmit((data) => {
+            setLoading(true);
+            onSubmit(data);
+          })}>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <TextField
               fullWidth
