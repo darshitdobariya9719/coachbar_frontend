@@ -37,9 +37,12 @@ const Navbar = () => {
   };
 
   const handleLogout = () => {
+    const confirmLogout = window.confirm("Are you sure you want to log out?");
+  if (confirmLogout) {
     dispatch(logout());
     persistor.purge();
     navigate("/login");
+  }
   };
 
   const toggleDrawer = () => {
