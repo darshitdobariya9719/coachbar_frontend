@@ -18,15 +18,21 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import api from "../utils/api";
 
 const schema = yup.object({
-  oldPassword: yup.string().required("Old password is required"),
+  oldPassword: yup
+  .string().required("Password is required"),
   newPassword: yup
-    .string()
-    .min(6, "Password must be at least 6 characters")
-    .required("New password is required"),
+  .string()
+  .min(6, "Password must be at least 6 characters")
+  .max(20, "Password must be at most 20 characters")
+  .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
+  .matches(/[a-z]/, "Password must contain at least one lowercase letter")
+  .matches(/\d/, "Password must contain at least one number")
+  .matches(/[@$!%*?&]/, "Password must contain at least one special character (@$!%*?&)")
+  .required("Password is required"),
   confirmPassword: yup
-    .string()
-    .oneOf([yup.ref("newPassword"), null], "Passwords must match")
-    .required("Confirm password is required"),
+  .string()
+  .oneOf([yup.ref("newPassword"), null], "Passwords must match")
+  .required("Confirm password is required"),
 });
 
 export default function UpdatePassword() {

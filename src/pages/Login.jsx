@@ -18,11 +18,24 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import api from "../utils/api";
 
 const schema = yup.object({
-  email: yup.string().email().required(),
+  email: yup
+  .string()
+  .email("Enter a valid email address")
+  .matches(
+    /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+    "Enter a valid email address"
+  )
+  .max(320, "Email must be at most 320 characters")
+  .required("Email is required"),
   password: yup
-    .string()
-    .required("Password is required")
-    .min(6, "Password must be at least 6 characters"),
+  .string()
+  .min(6, "Password must be at least 6 characters")
+  .max(20, "Password must be at most 20 characters")
+  .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
+  .matches(/[a-z]/, "Password must contain at least one lowercase letter")
+  .matches(/\d/, "Password must contain at least one number")
+  .matches(/[@$!%*?&]/, "Password must contain at least one special character (@$!%*?&)")
+  .required("Password is required"),
 });
 
 export default function Login() {

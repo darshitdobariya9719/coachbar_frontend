@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setProducts, setFilters } from "../redux/productSlice";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useNavigationType } from "react-router-dom";
 import api from "../utils/api";
 import {
   Table,
@@ -33,6 +33,10 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 export default function Products() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const navigationType = useNavigationType();
+  const noBackButtonPages = ["/", "/login"];
+  const hideBackButton = noBackButtonPages.includes(location.pathname) || navigationType === "PUSH";
+
   const { products, filters } = useSelector((state) => state.product);
   const { users } = useSelector((state) => state.user);
   const user = useSelector((state) => state.auth.user);
@@ -51,8 +55,8 @@ export default function Products() {
   const fetchProducts = useCallback(() => {
     setLoading(true);
     const query = {
-      category: filters.category || undefined,
-      source: filters.source || undefined,
+      category: filters.category==="All" ? undefined : filters.category || undefined,
+      source: filters.source==="All" ? undefined : filters.source || undefined,
       search: search || undefined,
       sort: sortField,
       order: sortOrder,
@@ -130,9 +134,9 @@ export default function Products() {
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
-
   return (
     <Box sx={{ mt: 8, minHeight: "90vh" }}>
+      {!hideBackButton &&
       <Button
         variant="outlined"
         color="primary"
@@ -140,7 +144,24 @@ export default function Products() {
         startIcon={<ArrowBackIcon />}
         sx={{ ml: 2, mt: 2 }}>
         Back
-      </Button>
+      </Button>}
+      {loading && (
+        <Box
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(255, 255, 255, 0.7)", // Semi-transparent background
+            zIndex: 10,
+          }}>
+          <CircularProgress />
+        </Box>
+      )}
       <Container maxWidth="false">
         <Box
           sx={{
@@ -173,7 +194,7 @@ export default function Products() {
                 dispatch(setFilters({ ...filters, category: e.target.value }));
                 setPage(1);
               }}>
-              <MenuItem value="">All</MenuItem>
+              <MenuItem value="All">All</MenuItem>
               {categories.map((cat) => (
                 <MenuItem key={cat} value={cat}>
                   {cat}
@@ -189,7 +210,7 @@ export default function Products() {
                 dispatch(setFilters({ ...filters, source: e.target.value }));
                 setPage(1);
               }}>
-              <MenuItem value="">All</MenuItem>
+              <MenuItem value="All">All</MenuItem>
               <MenuItem value="ADMIN">Admin</MenuItem>
               <MenuItem value="USER">User</MenuItem>
             </Select>
@@ -241,14 +262,7 @@ export default function Products() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {loading ? (
-                  <TableRow>
-                    <TableCell colSpan={8} align="center">
-                      <CircularProgress />
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  products.map((product) => (
+                {products&&products.length > 0 ? products.map((product) => (
                     <TableRow key={product._id}>
                       <TableCell>
                         <img
@@ -272,12 +286,13 @@ export default function Products() {
                                 <Chip
                                   label={user.name}
                                   key={user._id}
-                                  onDelete={() =>
+                                  onDelete={() =>{
+                                    setLoading(true);
                                     removeAssignee(
                                       product._id,
                                       product.assignedTo,
                                       user._id
-                                    )
+                                    )}
                                   }
                                 />
                               ))}
@@ -291,7 +306,7 @@ export default function Products() {
                                 labelId="demo-select-small-label"
                                 id="demo-select-small"
                                 value={""} // Ensure value is controlled
-                                onChange={(e) => setAssignUser(e.target.value)} // Handle value change
+                                onChange={(e) => {setLoading(true);setAssignUser(e.target.value)}} // Handle value change
                                 displayEmpty>
                                 <MenuItem value="">None</MenuItem>
                                 {users
@@ -335,8 +350,14 @@ export default function Products() {
                         </IconButton>
                       </TableCell>
                     </TableRow>
-                  ))
-                )}
+                  )):(
+                    <TableRow>
+                      <TableCell colSpan={8} align="center">
+                        No products found
+                      </TableCell>
+                    </TableRow>
+                    )
+                  }
               </TableBody>
             </Table>
           </TableContainer>

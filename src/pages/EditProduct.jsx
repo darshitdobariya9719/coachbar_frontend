@@ -17,8 +17,9 @@ import {
 } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../utils/api";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { setUsers } from "../redux/userSlice";
 
 // Validation Schema
 const schema = yup.object({
@@ -41,6 +42,7 @@ export default function EditProduct() {
     resolver: yupResolver(schema),
   });
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { id } = useParams(); // Get product ID from URL
   const user = useSelector((state) => state.auth.user);
   const { users } = useSelector((state) => state.user);
@@ -50,29 +52,7 @@ export default function EditProduct() {
   const [preview, setPreview] = useState("");
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Fetch categories
-    api
-      .get("/products/categories")
-      .then((res) => setCategories(res.data.categories));
-
-    // Fetch product details
-    api
-      .get(`/products/${id}`)
-      .then((res) => {
-        const product = res.data;
-        setValue("name", product.name);
-        setValue("sku", product.sku);
-        setValue("category", product.category);
-        setValue("assignedTo", product.assignedTo);
-        setPreview(`${api.defaults.baseURL}/images/${product.logo}`); // Set existing image preview
-        setLoading(false);
-      })
-      .catch(() => {
-        alert("Failed to load product");
-        navigate("/products");
-      });
-  }, [id, setValue, navigate]);
+  
 
   // Handle file selection and preview
   const handleFileChange = (e) => {
@@ -80,6 +60,8 @@ export default function EditProduct() {
     if (file) {
       setSelectedFile(file);
       setPreview(URL.createObjectURL(file));
+      setValue("logo", file); // Manually set the file value
+      trigger("logo"); // Trigger validation
     }
   };
 
@@ -87,7 +69,7 @@ export default function EditProduct() {
     try {
       const formData = new FormData();
       formData.append("name", data.name);
-      formData.append("sku", data.sku);
+      formData.append("sku", data.sku.trim());
       formData.append("category", data.category);
       formData.append("source", user.role === "admin" ? "ADMIN" : "USER");
       formData.append(
@@ -113,20 +95,37 @@ export default function EditProduct() {
     }
   };
 
-  // if (loading)
-  //   return (
-  //     <Box
-  //       sx={{
-  //         mt: 8,
-  //         minHeight: "90vh",
-  //         display: "flex",
-  //         justifyContent: "center",
-  //         alignItems: "center",
-  //       }}>
-  //       <CircularProgress />
-  //     </Box>
-  //   );
+  useEffect(() => {
+    if(users.length < 1) {
+      if (user?.role === "admin") {
+        api.get("/users").then((res) => dispatch(setUsers(res.data.users)));
+      }
+    }
+  }, []);
 
+  useEffect(() => {
+    // Fetch categories
+    api
+      .get("/products/categories")
+      .then((res) => setCategories(res.data.categories));
+
+    // Fetch product details
+    api
+      .get(`/products/${id}`)
+      .then((res) => {
+        const product = res.data;
+        setValue("name", product.name);
+        setValue("sku", product.sku);
+        setValue("category", product.category);
+        setValue("assignedTo", product.assignedTo);
+        setPreview(`${api.defaults.baseURL}/images/${product.logo}`); // Set existing image preview
+        setLoading(false);
+      })
+      .catch(() => {
+        alert("Failed to load product");
+        navigate("/products");
+      });
+  }, [id, setValue, navigate]);
   return (
     <Box sx={{ mt: 8, minHeight: "90vh" }}>
       <Button

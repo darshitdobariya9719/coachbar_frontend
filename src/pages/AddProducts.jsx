@@ -16,9 +16,10 @@ import {
   CircularProgress,
 } from "@mui/material";
 import api from "../utils/api";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { setUsers } from "../redux/userSlice";
 
 // Validation Schema
 const schema = yup.object({
@@ -27,7 +28,12 @@ const schema = yup.object({
   category: yup.string().required("Category is required"),
   source: yup.string().oneOf(["ADMIN", "USER"]).optional(),
   assignedTo: yup.array().optional(),
-  logo: yup.mixed().required("Product image is required"), // Image validation
+  logo:  yup
+  .mixed()
+  .test("required", "Product image is required", (value) => {
+    // console.log(value.length,'value: ', value);
+    return value && value.name; // Ensure a file is selected
+  }), // Image validation
 });
 
 export default function AddProduct() {
@@ -40,8 +46,10 @@ export default function AddProduct() {
     resolver: yupResolver(schema),
   });
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
   const { users } = useSelector((state) => state.user);
+  
   const [categories, setCategories] = useState([]);
   const [categoryInput, setCategoryInput] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
@@ -53,6 +61,8 @@ export default function AddProduct() {
     if (file) {
       setSelectedFile(file);
       setPreview(URL.createObjectURL(file));
+      setValue("logo", file); // Manually set the file value
+      trigger("logo"); // Trigger validation
     }
   };
 
@@ -60,7 +70,7 @@ export default function AddProduct() {
     try {
       const formData = new FormData();
       formData.append("name", data.name);
-      formData.append("sku", data.sku);
+      formData.append("sku", data.sku.trim());
       formData.append("category", data.category);
       formData.append("source", user.role === "admin" ? "ADMIN" : "USER");
       formData.append(
@@ -87,6 +97,14 @@ export default function AddProduct() {
     api
       .get("/products/categories")
       .then((res) => setCategories(res.data.categories));
+  }, []);
+
+  useEffect(() => {
+    if(users.length < 1) {
+      if (user?.role === "admin") {
+        api.get("/users").then((res) => dispatch(setUsers(res.data.users)));
+      }
+    }
   }, []);
 
   return (
