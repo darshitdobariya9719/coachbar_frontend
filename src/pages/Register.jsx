@@ -23,7 +23,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import api from "../utils/api";
 
 const schema = yup.object({
-  name: yup.string().required(),
+  name: yup.string().trim().required(),
   email: yup
   .string()
   .email("Enter a valid email address")

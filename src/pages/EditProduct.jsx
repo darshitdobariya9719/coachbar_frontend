@@ -23,9 +23,9 @@ import { setUsers } from "../redux/userSlice";
 
 // Validation Schema
 const schema = yup.object({
-  name: yup.string().required("Product name is required"),
-  sku: yup.string().required("SKU is required"),
-  category: yup.string().required("Category is required"),
+  name: yup.string().trim().required("Product name is required"),
+  sku: yup.string().trim().required("SKU is required"),
+  category: yup.string().trim().required("Category is required"),
   source: yup.string().oneOf(["ADMIN", "USER"]).optional(),
   assignedTo: yup.array().optional(),
   logo: yup.mixed().optional(),
@@ -68,7 +68,7 @@ export default function EditProduct() {
   const onSubmit = async (data) => {
     try {
       const formData = new FormData();
-      formData.append("name", data.name);
+      formData.append("name", data.name.trim());
       formData.append("sku", data.sku.trim());
       formData.append("category", data.category);
       formData.append("source", user.role === "admin" ? "ADMIN" : "USER");
